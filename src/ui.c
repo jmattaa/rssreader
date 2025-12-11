@@ -1,13 +1,18 @@
 #include "ui.h"
+#include "glibconfig.h"
 #include "rss.h"
 #include <gtk/gtk.h>
 
 static GtkWidget *ui_rsschannel_new(rchannel *ch);
 static GtkWidget *ui_rssitem_new(ritem *item);
+static void ui_on_itemclicked(void *_, void *user_data);
+static void ui_setup_css(void);
 
-void ui_activate(GtkApplication *app, gpointer user_data)
+void ui_activate(GtkApplication *app, void *user_data)
 {
     rchannel *ch = (rchannel *)user_data;
+
+    ui_setup_css();
 
     GtkWidget *win = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(win), "RSS Reader");
@@ -48,29 +53,48 @@ static GtkWidget *ui_rsschannel_new(rchannel *ch)
 static GtkWidget *ui_rssitem_new(ritem *item)
 {
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
-    gtk_widget_set_margin_start(box, 12);
-    gtk_widget_set_margin_end(box, 12);
-    gtk_widget_set_margin_top(box, 8);
-    gtk_widget_set_margin_bottom(box, 8);
 
-    GtkWidget *title = gtk_label_new(item->title);
-    gtk_label_set_xalign(GTK_LABEL(title), 0.0);
-    gtk_label_set_wrap(GTK_LABEL(title), TRUE);
-    gtk_label_set_wrap_mode(GTK_LABEL(title), PANGO_WRAP_WORD);
-    gtk_widget_set_name(title, "rss-title");
+    GtkWidget *btn = gtk_button_new_with_label(item->title);
+    gtk_widget_set_name(btn, "rss-btn");
 
+    // Get the button's label to set text properties
+    GtkWidget *label = gtk_button_get_child(GTK_BUTTON(btn));
+    if (GTK_IS_LABEL(label))
+    {
+        gtk_label_set_xalign(GTK_LABEL(label), 0.0);
+        gtk_label_set_wrap(GTK_LABEL(label), TRUE);
+        gtk_label_set_wrap_mode(GTK_LABEL(label), PANGO_WRAP_WORD);
+    }
+
+    g_signal_connect(G_OBJECT(btn), "clicked", G_CALLBACK(ui_on_itemclicked),
+                     item);
+
+    gtk_box_append(GTK_BOX(box), btn);
+
+    return box;
+}
+
+static void ui_setup_css(void)
+{
     GtkCssProvider *css = gtk_css_provider_new();
     gtk_css_provider_load_from_string(
-        css, "list { background-color: #f8f9fa; }"
-             "#rss-title { font-size: 16px; font-weight: 600; color: #2c3e50; "
-             "margin-bottom: 4px; }"
-             "list row { border-bottom: 1px solid #e9ecef; padding: 0px; }"
-             "list row:hover:not(:selected) { background-color: #e9ecef; }");
+        css, "#rss-btn { font-size: 16px; font-weight: 600; color: #2c3e50; "
+             "padding: 8px; border: none; background: transparent; "
+             "box-shadow: none; outline: none; } "
+             "list row { background: transparent; border: none; } "
+             "list row:selected { background: transparent; border: none; } "
+             "list row:hover { background: #e9ecef; } "
+             "list { background-color: #f8f9fa; }");
+
     gtk_style_context_add_provider_for_display(
         gdk_display_get_default(), GTK_STYLE_PROVIDER(css),
         GTK_STYLE_PROVIDER_PRIORITY_USER);
+}
 
-    gtk_box_append(GTK_BOX(box), title);
-
-    return box;
+static void ui_on_itemclicked(void *_, void *user_data)
+{
+    ritem *item = (ritem *)user_data;
+    if (item->link)
+        gtk_uri_launcher_launch(gtk_uri_launcher_new(item->link), NULL, NULL,
+                                NULL, NULL);
 }
