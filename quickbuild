@@ -1,0 +1,63 @@
+cc = "gcc";
+
+cflags = "-Iinclude $(pkg-config --cflags libcurl gtk4)";
+cflagsdev = "-g -Wall -Wextra -fsanitize=address [cflags]";
+cflagsrel = "-O3 [cflags]";
+
+lflags = "$(pkg-config --libs libcurl gtk4)";
+lflagsdev = "-g -fsanitize=address [lflags]";
+lflagsrel = "-O3 [lflags]";
+
+srcs = "./src/*.c";
+devobjs = srcs: "./src/*.c" -> "./build/dev/*.o";
+relobjs = srcs: "./src/*.c" -> "./build/rel/*.o";
+
+headers = "include/*.h";
+
+dev_exec = "./rssreader";
+rel_exec = "./build/res/rssreader";
+
+"dev" {
+    depends = "mkdirs", "build_devobjs";
+    run = "[cc] [lflagsdev] -o [dev_exec] [devobjs]";
+}
+
+"run" {
+    depends = "dev";
+    run = "[dev_exec]";
+}
+
+"build_devobjs" {
+    depends = "srcs", "headers", devobjs;
+    depends_parallel = true;
+}
+
+"rel" {
+    depends = "mkdirs", "build_relobjs";
+    run = "[cc] [lflagsrel] -o [rel_exec] [relobjs]";
+}
+
+"build_relobjs" {
+    depends = "srcs", "headers", relobjs;
+    depends_parallel = true;
+}
+
+
+devobjs as obj {
+    obj_src = obj: "./build/dev/*.o" -> "./src/*.c";
+    run = "[cc] [cflagsdev] -c [obj_src] -o [obj]";
+}
+
+relobjs as obj {
+    obj_src = obj: "./build/rel/*.o" -> "./src/*.c";
+    run = "[cc] [cflagsrel] -c [obj_src] -o [obj]";
+}
+
+"mkdirs" {
+    run = "mkdir -p build/dev build/rel";
+}
+
+"clean" {
+    run = "rm -rf build";
+}
+
