@@ -1,5 +1,6 @@
 #include "ui.h"
 #include "glibconfig.h"
+#include "gtk/gtkcssprovider.h"
 #include "rss.h"
 #include <gtk/gtk.h>
 
@@ -78,13 +79,19 @@ static void ui_setup_css(void)
 {
     GtkCssProvider *css = gtk_css_provider_new();
     gtk_css_provider_load_from_string(
-        css, "#rss-btn { font-size: 16px; font-weight: 600; color: #2c3e50; "
+        css, "window { background-color: #1d2021; } "
+             "#rss-btn { font-size: 16px; font-weight: 600; color: #ebdbb2; "
              "padding: 8px; border: none; background: transparent; "
              "box-shadow: none; outline: none; } "
+             "#comments-btn { font-size: 12px; padding: 4px 8px; margin-top: 4px; "
+             "background-color: #3c3836; color: #ebdbb2; border: 1px solid #665c54; } "
+             "#comments-btn:hover { background-color: #665c54; } "
              "list row { background: transparent; border: none; } "
              "list row:selected { background: transparent; border: none; } "
-             "list row:hover { background: #e9ecef; } "
-             "list { background-color: #f8f9fa; }");
+             "list row:hover { background: #3c3836; } "
+             "list { background-color: #1d2021; } "
+             "label { color: #ebdbb2; } "
+             ".caption { color: #928374; }");
 
     gtk_style_context_add_provider_for_display(
         gdk_display_get_default(), GTK_STYLE_PROVIDER(css),
