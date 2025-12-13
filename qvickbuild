@@ -28,7 +28,7 @@ rel_exec = "./build/res/rssreader";
 }
 
 "build_devobjs" {
-    depends = "srcs", "headers", devobjs;
+    depends = srcs, headers, devobjs;
     depends_parallel = true;
 }
 
@@ -38,7 +38,7 @@ rel_exec = "./build/res/rssreader";
 }
 
 "build_relobjs" {
-    depends = "srcs", "headers", relobjs;
+    depends = relobjs, srcs, headers;
     depends_parallel = true;
 }
 
