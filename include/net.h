@@ -12,7 +12,7 @@ typedef struct
 
 CURLcode net_recv(CURL *curl, const char *url, net_mem *mem);
 
-net_mem *mem_alloc();
-void mem_free(net_mem *mem);
+net_mem *net_mem_alloc();
+void net_mem_free(net_mem *mem);
 
 #endif

@@ -1,4 +1,5 @@
 #include "rss.h"
+#include "net.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,10 +16,18 @@ static inline char *skip_tag(char *p, char *end)
     return p;
 }
 
-rchannel *rss_parse(const char *xml, size_t len)
+rchannel *rss_recvandparse(CURL *curl, const char *uri)
 {
-    char *p = (char *)xml;
-    char *end = (char *)xml + len;
+    net_mem *mem = net_mem_alloc();
+    CURLcode res = net_recv(curl, uri, mem);
+    if (res != CURLE_OK)
+    {
+        fprintf(stderr, "net_recv failed: %s\n", curl_easy_strerror(res));
+        return NULL;
+    }
+
+    char *p = mem->ptr;
+    char *end = mem->ptr + mem->len;
 
     while (p < end)
     {

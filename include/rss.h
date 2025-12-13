@@ -1,6 +1,7 @@
 #ifndef RSSREADER_RSS_H
 #define RSSREADER_RSS_H
 
+#include "curl/curl.h"
 #include <stddef.h>
 
 typedef struct
@@ -23,8 +24,7 @@ typedef struct
 } rchannel;
 
 // parse a rss channel
-rchannel *rss_parse(const char *xml, size_t len);
-
+rchannel *rss_recvandparse(CURL *curl, const char *uri);
 void rss_free(rchannel *channel);
 
 void dbg_print_rchannel(rchannel *channel);

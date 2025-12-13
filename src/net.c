@@ -31,7 +31,7 @@ CURLcode net_recv(CURL *curl, const char *url, net_mem *mem)
     return curl_easy_perform(curl);
 }
 
-net_mem *mem_alloc(void)
+net_mem *net_mem_alloc(void)
 {
     net_mem *mem = malloc(sizeof(net_mem));
     mem->ptr = NULL;
@@ -39,7 +39,7 @@ net_mem *mem_alloc(void)
     return mem;
 }
 
-void mem_free(net_mem *mem)
+void net_mem_free(net_mem *mem)
 {
     if (!mem)
         return;
