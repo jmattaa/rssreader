@@ -79,8 +79,6 @@ rchannelset *rss_recvlinkf(CURL *curl, const char *fp)
         if (nextl)
             *nextl = '\0';
 
-        printf("%s\n", p);
-
         chs->channels = realloc(chs->channels, sizeof(rchannel *) * (i + 1));
         if (!chs->channels)
         {
