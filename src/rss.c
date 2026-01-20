@@ -1,4 +1,5 @@
 #include "rss.h"
+#include "io.h"
 #include "net.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,6 +46,72 @@ rchannel *rss_recvandparse(CURL *curl, const char *uri)
     }
 
     return NULL;
+}
+
+rchannelset *rss_recvlinkf(CURL *curl, const char *fp)
+{
+    rchannelset *chs = malloc(sizeof(rchannelset));
+    if (!chs)
+        return NULL;
+
+    char *buf = io_read(fp);
+    if (!buf)
+    {
+        free(chs);
+        return NULL;
+    }
+
+    chs->channels = malloc(sizeof(rchannel *));
+    if (!chs->channels)
+    {
+        free(buf);
+        free(chs);
+        printf("unable to allocate memory for channel\n");
+        return NULL;
+    }
+
+    char *p = buf;
+    size_t i = 0;
+
+    while (*p)
+    {
+        char *nextl = strchr(p, '\n');
+        if (nextl)
+            *nextl = '\0';
+
+        printf("%s\n", p);
+
+        chs->channels = realloc(chs->channels, sizeof(rchannel *) * (i + 1));
+        if (!chs->channels)
+        {
+            free(chs->channels);
+            free(buf);
+            free(chs);
+            printf("unable to allocate memory for channel\n");
+            return NULL;
+        }
+
+        chs->channels[i++] = rss_recvandparse(curl, p);
+
+        if (!nextl)
+            break;
+
+        p = nextl + 1;
+    }
+
+    chs->nchannels = i;
+    free(buf);
+    return chs;
+}
+
+void rss_free_set(rchannelset *set)
+{
+    for (size_t i = 0; i < set->nchannels; i++)
+        if (set->channels[i])
+            rss_free(set->channels[i]);
+
+    free(set->channels);
+    free(set);
 }
 
 #define CHK_ASSIGN(tagname, taglen, field)                                     \

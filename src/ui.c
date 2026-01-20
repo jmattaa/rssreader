@@ -6,7 +6,7 @@
 
 static GtkWidget *win;
 
-static GtkWidget *ui_rsschannellist_new(rchannel **channels);
+static GtkWidget *ui_rsschannellist_new(rchannelset *chs);
 static GtkWidget *ui_rsschannelitems_new(rchannel *ch);
 static GtkWidget *ui_rssitem_new(ritem *item, int is_channel);
 static void ui_on_itemclicked(void *_, void *user_data);
@@ -16,7 +16,7 @@ static void ui_setup_css(void);
 void ui_activate(GtkApplication *app, void *user_data)
 {
     // null terminated array with channels
-    rchannel **channels = (rchannel **)user_data;
+    rchannelset *chs = (rchannelset *)user_data;
 
     ui_setup_css();
 
@@ -24,13 +24,13 @@ void ui_activate(GtkApplication *app, void *user_data)
     gtk_window_set_title(GTK_WINDOW(win), "RSS Reader");
     gtk_window_set_default_size(GTK_WINDOW(win), 800, 600);
 
-    GtkWidget *rchannel_widget = ui_rsschannellist_new(channels);
+    GtkWidget *rchannel_widget = ui_rsschannellist_new(chs);
     gtk_window_set_child(GTK_WINDOW(win), rchannel_widget);
 
     gtk_window_present(GTK_WINDOW(win));
 }
 
-static GtkWidget *ui_rsschannellist_new(rchannel **channels)
+static GtkWidget *ui_rsschannellist_new(rchannelset *chs)
 {
     GtkWidget *scrolled = gtk_scrolled_window_new();
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
@@ -38,9 +38,10 @@ static GtkWidget *ui_rsschannellist_new(rchannel **channels)
 
     GtkWidget *list = gtk_list_box_new();
 
-    for (size_t i = 0; channels[i]; i++)
+    for (size_t i = 0; i < chs->nchannels; i++)
     {
-        GtkWidget *item_widget = ui_rssitem_new((ritem *)channels[i], true);
+        GtkWidget *item_widget =
+            ui_rssitem_new((ritem *)chs->channels[i], true);
         gtk_list_box_append(GTK_LIST_BOX(list), item_widget);
     }
 

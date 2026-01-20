@@ -23,9 +23,18 @@ typedef struct
     // optional shi later on
 } rchannel;
 
+typedef struct
+{
+    rchannel **channels;
+    size_t nchannels;
+} rchannelset;
+
 // parse a rss channel
 rchannel *rss_recvandparse(CURL *curl, const char *uri);
 void rss_free(rchannel *channel);
+
+rchannelset *rss_recvlinkf(CURL *curl, const char *fp);
+void rss_free_set(rchannelset *set);
 
 void dbg_print_rchannel(rchannel *channel);
 
