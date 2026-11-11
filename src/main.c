@@ -2,7 +2,7 @@
 #include <raylib.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "rsschan.h"
+#include "rss.h"
 
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
@@ -13,11 +13,10 @@ int main(void) {
     InitWindow(win_w, win_h, "rssreader");
     SetTargetFPS(60);
 
-    rchan *ch = malloc(sizeof(rchan));
-    if (ch == NULL)
-        pfail(1, "couldn't malloc for ch");
-    ch->title = "Helloo";
-    ch->link = "test link";
+    int nlinks;
+    rchan **chs = rss_parsef("rsslinks", &nlinks);
+    if (!chs)
+        pfail(1, "couldn't parse rsslinks file");
 
     while (!WindowShouldClose()) {
         if (IsWindowResized())
@@ -26,12 +25,13 @@ int main(void) {
         BeginDrawing();
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-        rchan_draw(ch, 0);
+        for (int i = 0; i < nlinks; i++)
+            rchan_draw(chs[i], i);
 
         EndDrawing();
     }
 
-    free(ch);
+    rchanarr_free(chs, nlinks);
 
     return 0;
 }
