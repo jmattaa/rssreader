@@ -10,6 +10,7 @@
 int win_w = 800, win_h = 600;
 
 int main(void) {
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(win_w, win_h, "rssreader");
     SetTargetFPS(60);
 
