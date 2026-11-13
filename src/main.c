@@ -1,8 +1,8 @@
 #include "main.h"
-#include <raylib.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include "rss.h"
+#include <raylib.h>
+#include "rss/rss.h"
+#include "rss/ui.h"
 
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>

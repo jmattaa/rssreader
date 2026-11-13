@@ -1,7 +1,5 @@
-#ifndef RSSREADER_RSSCHAN_H
-#define RSSREADER_RSSCHAN_H
-
-#define RCHAN_UI_H 50
+#ifndef RSSREADER_RSS_RSSCHAN_H
+#define RSSREADER_RSS_RSSCHAN_H
 
 typedef struct {
     char *title;
@@ -13,10 +11,9 @@ typedef struct {
     // optional stuff later
 } rchan;
 
-void rchan_draw(rchan *c, int i);
-
 rchan *rchan_init(char *l, char *t);
 rchan **rss_parsef(const char *fp, int *n);
+
 void rchan_free(rchan *ch);
 void rchanarr_free(rchan **ch, int n);
 

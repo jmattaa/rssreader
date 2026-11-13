@@ -1,19 +1,13 @@
-#include "rss.h"
+#include "rss/rss.h"
+#include <curl/curl.h>
 #include <raygui.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "io.h"
 #include "main.h"
-#include "raylib.h"
 
-void rchan_draw(rchan *c, int i) {
-    int starth = RCHAN_UI_H * i;
-    if (GuiButton((Rectangle){0, starth, win_w, RCHAN_UI_H},
-                  c->title)) {
-        printf("%s\n", c->link);
-    }
-}
+static rchan *rchan_recv(CURL *curl, const char *uri);
 
 rchan *rchan_init(char *l, char *t) {
     rchan *ch = malloc(sizeof(rchan));
@@ -63,4 +57,9 @@ void rchanarr_free(rchan **chs, int n) {
             rchan_free(chs[i]);
 
     free(chs);
+}
+
+static rchan *rchan_recv(CURL *curl, const char *uri) {
+    printf("doing a get request?? 🤷‍♂️");
+    return NULL;
 }

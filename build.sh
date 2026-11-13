@@ -2,11 +2,11 @@
 
 CC=gcc
 
-CFLAGS=(-Iinclude $(pkg-config --cflags raylib))
+CFLAGS=(-Iinclude $(pkg-config --cflags raylib libcurl))
 CFLAGS_DEV=(-g -Wall -Wextra -fsanitize=address "${CFLAGS[@]}")
 CFLAGS_REL=(-O3 "${CFLAGS[@]}")
 
-LFLAGS=($(pkg-config --libs raylib))
+LFLAGS=($(pkg-config --libs raylib libcurl) -lm)
 LFLAGS_DEV=(-g -fsanitize=address "${LFLAGS[@]}")
 LFLAGS_REL=("${LFLAGS[@]}")
 
