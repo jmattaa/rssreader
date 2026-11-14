@@ -27,6 +27,7 @@
 static net_mem *rchan_recv(CURL *curl, const char *uri);
 static rchan *rchan_parse(net_mem *m);
 static rchan *rchan_parsecontent(char *p, char *end);
+static ritem *ritem_parsecontent(char *p, char *end);
 static inline char *skip_tag(char *p, char *end);
 
 rchan **rss_parsef(CURL *curl, const char *fp, int *n) {
@@ -54,11 +55,23 @@ rchan **rss_parsef(CURL *curl, const char *fp, int *n) {
     return chs;
 }
 
+void ritem_free(ritem *i) {
+    if (i->title)
+        free(i->title);
+    if (i->link)
+        free(i->link);
+    free(i);
+}
+
 void rchan_free(rchan *ch) {
-    if (ch->link)
-        free(ch->link);
+    for (size_t i = 0; i < ch->nitems; i++)
+        ritem_free(ch->items[i]);
+    free(ch->items);
+
     if (ch->title)
         free(ch->title);
+    if (ch->link)
+        free(ch->link);
     free(ch);
 }
 
@@ -115,15 +128,14 @@ static rchan *rchan_parsecontent(char *p, char *end) {
 
         if ((end - p >= 4) && memcmp(p, "item", 4) == 0) {
             // item parsing
-
-            // skipping item tag for now
-            if (end - p >= 4 && memcmp(p, "item", 4) == 0) {
-                p = skip_tag(p, end);
-                while (p < end && memcmp(p, "</item>", 7) != 0)
-                    p++;
-                p += 7;
-                continue;
+            p = skip_tag(p, end);
+            ritem *item = ritem_parsecontent(p, end);
+            if (item) {
+                ch->items =
+                    realloc(ch->items, sizeof(ritem *) * (ch->nitems + 1));
+                ch->items[ch->nitems++] = item;
             }
+            p = skip_tag(p, end);
             continue;
         }
 
@@ -132,6 +144,34 @@ static rchan *rchan_parsecontent(char *p, char *end) {
     }
 
     return ch;
+}
+
+static ritem *ritem_parsecontent(char *p, char *end) {
+    ritem *item = calloc(1, sizeof(ritem));
+    if (!item)
+        pfail(NULL,
+              "unable to allocate memory for ch parsing rss item content\n");
+
+    while (p < end) {
+        if (*p != '<') {
+            p++;
+            continue;
+        }
+
+        p++;
+        if ((end - p >= 6) && memcmp(p, "/item", 5) == 0) {
+            // reached closing </item> tag
+            p = skip_tag(p, end);
+            break;
+        }
+
+        CHK_ASSIGN("title", 5, item->title);
+        CHK_ASSIGN("link", 4, item->link);
+
+        p = skip_tag(p, end);
+    }
+
+    return item;
 }
 
 static inline char *skip_tag(char *p, char *end) {

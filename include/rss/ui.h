@@ -3,8 +3,9 @@
 
 #include "rss/rss.h"
 
-#define RCHAN_UI_H 50
+#define RBTN_UI_H 50
 
-void rchan_draw(rchan *c, int i);
+void rchan_draw(rchan *c, int i, rchan **chdrw); 
+void rchan_drawitems(rchan *c);
 
 #endif

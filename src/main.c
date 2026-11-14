@@ -1,6 +1,6 @@
 #include "main.h"
-#include <stdio.h>
 #include <raylib.h>
+#include <stdio.h>
 #include "rss/rss.h"
 #include "rss/ui.h"
 
@@ -23,6 +23,8 @@ int main(void) {
     if (!chs)
         pfail(1, "couldn't parse rsslinks file");
 
+    rchan *chdrw = NULL;
+
     while (!WindowShouldClose()) {
         if (IsWindowResized())
             win_w = GetScreenWidth(), win_h = GetScreenHeight();
@@ -30,8 +32,11 @@ int main(void) {
         BeginDrawing();
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-        for (int i = 0; i < nlinks; i++)
-            rchan_draw(chs[i], i);
+        if (!chdrw)
+            for (int i = 0; i < nlinks; i++)
+                rchan_draw(chs[i], i, &chdrw);
+        else
+            rchan_drawitems(chdrw);
 
         EndDrawing();
     }
