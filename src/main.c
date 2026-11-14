@@ -14,9 +14,15 @@ int main(void) {
     if (!curl)
         pfail(1, "couldn't init curl\n");
 
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(win_w, win_h, "rssreader");
     SetTargetFPS(60);
+
+    GuiLoadStyle("res/terminal.rgs");
+    Font customFont = LoadFontEx("res/RecMono.ttf", 20, 0, 0);
+    SetTextureFilter(customFont.texture, TEXTURE_FILTER_BILINEAR);
+    GuiSetFont(customFont);
+    GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
 
     int nlinks;
     rchan **chs = rss_parsef(curl, "rsslinks", &nlinks);
@@ -24,7 +30,6 @@ int main(void) {
         pfail(1, "couldn't parse rsslinks file");
 
     rchan *chdrw = NULL;
-
     while (!WindowShouldClose()) {
         if (IsWindowResized())
             win_w = GetScreenWidth(), win_h = GetScreenHeight();
