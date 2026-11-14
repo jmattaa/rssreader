@@ -14,7 +14,7 @@ int main(void) {
     if (!curl)
         pfail(1, "couldn't init curl\n");
 
-    // SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(win_w, win_h, "rssreader");
     SetTargetFPS(60);
 
@@ -33,13 +33,15 @@ int main(void) {
     while (!WindowShouldClose()) {
         if (IsWindowResized())
             win_w = GetScreenWidth(), win_h = GetScreenHeight();
+        // SHOULD I DO THIS AS A UI BTN LATER ON??
+        if (IsKeyPressed(KEY_BACKSPACE))
+            chdrw = NULL;
 
         BeginDrawing();
         ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
         if (!chdrw)
-            for (int i = 0; i < nlinks; i++)
-                rchan_draw(chs[i], i, &chdrw);
+            rchan_drawall(chs, nlinks, &chdrw);
         else
             rchan_drawitems(chdrw);
 
