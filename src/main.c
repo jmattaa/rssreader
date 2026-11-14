@@ -10,12 +10,16 @@
 int win_w = 800, win_h = 600;
 
 int main(void) {
+    CURL *curl = curl_easy_init();
+    if (!curl)
+        pfail(1, "couldn't init curl\n");
+
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(win_w, win_h, "rssreader");
     SetTargetFPS(60);
 
     int nlinks;
-    rchan **chs = rss_parsef("rsslinks", &nlinks);
+    rchan **chs = rss_parsef(curl, "rsslinks", &nlinks);
     if (!chs)
         pfail(1, "couldn't parse rsslinks file");
 
@@ -33,6 +37,7 @@ int main(void) {
     }
 
     rchanarr_free(chs, nlinks);
+    curl_easy_cleanup(curl);
 
     return 0;
 }
